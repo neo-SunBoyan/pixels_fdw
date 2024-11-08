@@ -1,0 +1,15 @@
+# Generated subdirectories
+/.deps
+/.git
+/log/
+/results/
+/tmp_check/
+build/
+plot
+.idea
+.vscode
+**/cmake-build-debug
+**/CMakeCache.txt
+**/CMakeFiles
+*.o
+*.subdirectories*.gcno
