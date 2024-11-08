@@ -211,10 +211,6 @@ PixelsFdwExecutionState::GetPixelsReaderOption(PixelsReadLocalState &local_state
 }
 
 bool PixelsFdwExecutionState::next(TupleTableSlot* slot) {
-	std::cout << current_location << std::endl;
-	std::cout << scan_data->vectorizedRowBatch << std::endl;
-	std::cout << scan_data->currPixelsRecordReader << std::endl;
-
 	if (!scan_data) {
 		return false;
 	}
