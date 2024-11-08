@@ -245,25 +245,25 @@ bool PixelsFdwExecutionState::next(TupleTableSlot* slot) {
 			case TypeDescription::SHORT: {
 			    auto intCol = std::static_pointer_cast<LongColumnVector>(col);
                 slot->tts_isnull[attr] = false;
-				slot->tts_values[attr] = Int16GetDatum(*((short*)(intCol->current()) + current_location));
+				slot->tts_values[attr] = Int16GetDatum(*((short*)(intCol->current())));
 			    break;
 			}
 			case TypeDescription::INT: {
 				auto intCol = std::static_pointer_cast<LongColumnVector>(col);
                 slot->tts_isnull[attr] = false;
-				slot->tts_values[attr] = Int32GetDatum(*((int*)(intCol->current()) + current_location));
+				slot->tts_values[attr] = Int32GetDatum(*((int*)(intCol->current())));
 			    break;
 		    }
 			case TypeDescription::LONG: {
 				auto intCol = std::static_pointer_cast<LongColumnVector>(col);
                 slot->tts_isnull[attr] = false;
-				slot->tts_values[attr] = Int64GetDatum(*((long*)(intCol->current()) + current_location));
+				slot->tts_values[attr] = Int64GetDatum(*((long*)(intCol->current())));
 			    break;
 			}
 			case TypeDescription::DATE: {
 				auto intCol = std::static_pointer_cast<DateColumnVector>(col);
                 slot->tts_isnull[attr] = false;
-				slot->tts_values[attr] = DateADTGetDatum(*((int*)(intCol->current()) + current_location) + (UNIX_EPOCH_JDATE - POSTGRES_EPOCH_JDATE));
+				slot->tts_values[attr] = DateADTGetDatum(*((int*)(intCol->current())) + (UNIX_EPOCH_JDATE - POSTGRES_EPOCH_JDATE));
 			    break;
 		    }
 			case TypeDescription::DECIMAL: {
@@ -274,7 +274,7 @@ bool PixelsFdwExecutionState::next(TupleTableSlot* slot) {
 				}
 				char *numeric_str = (char *)palloc0(PIXELS_FDW_MAX_DEC_WIDTH + 2);
 				// lose precision
-				sprintf(numeric_str, "%lf", *((long*)(decimalCol->current()) + current_location) / decimalCol->getScale());
+				sprintf(numeric_str, "%lf", *((long*)(decimalCol->current())) / decimalCol->getScale());
 				Datum numeric_data = DirectFunctionCall3(numeric_in,
 													 	 CStringGetDatum(numeric_str),
 													 	 ObjectIdGetDatum(InvalidOid),
@@ -287,7 +287,7 @@ bool PixelsFdwExecutionState::next(TupleTableSlot* slot) {
 			case TypeDescription::CHAR:
 		    {
 			    auto binaryCol = std::static_pointer_cast<BinaryColumnVector>(col);
-	            string_t *string_value = (string_t*)(binaryCol->current()) + current_location;
+	            string_t *string_value = (string_t*)(binaryCol->current());
             	int64 bytea_len = string_value->GetSize() + VARHDRSZ;
             	bytea *b = (bytea*)palloc0(bytea_len);
             	SET_VARSIZE(b, bytea_len);
@@ -303,6 +303,7 @@ bool PixelsFdwExecutionState::next(TupleTableSlot* slot) {
 		}       
     }
     current_location++;
+	scan_data->vectorizedRowBatch->increment(1);
 	ExecStoreVirtualTuple(slot);
 	for (int attr = 0; attr < slot->tts_tupleDescriptor->natts; attr++) {
 		std::cout << slot->tts_values[attr] << std::endl;
